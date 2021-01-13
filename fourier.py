@@ -21,11 +21,11 @@ plt.figure(1)
 plt.title('Signal Wave of the tone')
 plt.xlabel('Number of sample')
 plt.ylabel('Amplitude')
-#plt.plot(abs(signal))
+# plt.plot(abs(signal))
 # plt.show()
 
-# Calculate energy of the signal:  https://stackoverflow.com/questions/29429733/cant-find-the-right-energy-using-scipy-signal-welch
-signalabs=abs(signal[15000:120000])
+# Calculate signal energy
+signalabs=abs(signal[:500000]) #120000])
 
 i = 0
 sum_x = 0
@@ -43,38 +43,103 @@ while i < len(signalabs)-100:
 
 # Find peaks on the graph
 x_peaks, properties = find_peaks(signalabs, distance = 2000, prominence=(2000, None))
-properties["prominences"].max()
+properties["prominences"].max() 
 
 y_peaks = signalabs[x_peaks]
 
-print(x_peaks)         # x values of peaks
-print(y_peaks)         # y values of peaks
+print("X values of peaks:", x_peaks)         # x values of peaks
+print("Y values of peaks:", y_peaks)         # y values of peaks
 
-# Obtain 30% of the peak values
-y_start = y_peaks*0.3
-print(y_start)
+# Obtain 10% of the peak values
+y_range = y_peaks*0.1
+print("10% of peaks' height:", y_range)
 
 
-# Get x values for y_start to obtain beggining of the window
-k = 0
-while k < len(signalabs):
-    if signalabs[k] == y_start[0]:
-        print(k)
-    k+=1
+# Look for the value in array which is the closest to y_range
+
+# start_range = signalabs[x_peaks[0]-500:x_peaks[0]+1]
+# end_range = signalabs[x_peaks[0]:x_peaks[0]+501]
+# print (start_range)
+# print (x_peaks[0])
+
+def closest(lst, K): 
+    return lst[min(range(len(lst)), key = lambda i: abs(lst[i]-K))] 
+      
+a = 0
+while a < len(y_range):
+    start_range = signalabs[x_peaks[a]-500:x_peaks[a]+1]
+    closest_start = closest(start_range, y_range[a])
+
+    end_range = signalabs[x_peaks[a]:x_peaks[a]+501]
+    closest_end = closest(end_range, y_range[a])
+
+
+    # Get x values for y_range to obtain beggining and ending of the window
+    k = 0
+    starting = [None]*30
+    ending = [None]*30
+    r = 0
+    m = 0
+    p = 0
+    while k < len(start_range):
+        if start_range[k] == closest_start:
+            s_value = k + x_peaks[a]-500
+            print('Beggining of the window (x): ', s_value)
+            starting[r] = s_value
+            r+=1
+            break
+        k+=1
+
+    while m < len(end_range):
+        if end_range[m] == closest_end:
+            e_value = m + x_peaks[a]
+            print('Ending of the window (x): ', e_value)
+            ending[p] = e_value
+            p+=1
+            break
+        m+=1
+    
+    a+=1
+
+print(starting)
+print(ending)
+
+
+# closest_start = closest(start_range, y_range[0])
+# closest_end = closest(end_range, y_range[0])
+
+# print('closest start =', closest_start) 
+# print('closest end =', closest_end) 
+
+
+# # Get x values for y_range to obtain beggining of the window
+# k = 0
+# while k < len(signalabs):
+#     if signalabs[k] == closest_start: #y_range[0]:
+#         # print('Beggining of the window (x): ', k)
+#         break
+#     k+=1
    
-
+# print('Beggining of the window (x):', k)
 
 
 
 # Plot the graph with signal energy and peaks
 plt.figure(1)
-plt.title('Energy')
+plt.title('Signal Energy')
 plt.xlabel('Number of sample')
 plt.ylabel('Amplitude')
 plt.plot(signalabs)
 plt.plot(x_peaks, signalabs[x_peaks], "x")
+# plt.plot(k, closest_start, "x")
 plt.plot()
 plt.show()
+
+
+
+
+
+
 
 
 
