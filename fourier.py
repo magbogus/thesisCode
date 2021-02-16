@@ -5,7 +5,7 @@ import numpy as np
 import wave
 import math
 
-click_rec = wave.open('recordings\\ErGd_2.wav', 'r')
+click_rec = wave.open('recordings\\BaOr_2.wav', 'r')
 
 #Extract Raw Audio from Wav File
 signal = click_rec.readframes(-1)
@@ -27,7 +27,7 @@ fs = click_rec.getframerate()
 # plt.show()
 
 # Calculate signal energy
-signalabs=abs(signal) #[:500000]) #120000])
+signalabs=abs(signal) #[:530000]) #120000])
 
 i = 0
 sum_x = 0
@@ -46,13 +46,13 @@ def closest(lst, K):
     return lst[min(range(len(lst)), key = lambda i: abs(lst[i]-K))] 
 
 # Find peaks on the graph (besides echoes)
-x_peaks, properties = find_peaks(signalabs, distance = 10000, prominence=(1000, None))
+x_peaks, properties = find_peaks(signalabs, distance = 10000, prominence=(200, None))
 properties["prominences"].max() 
 
 y_peaks = signalabs[x_peaks]
 
-print("X values of peaks:", x_peaks)         # x values of peaks (skipping echo)
-print("Y values of peaks:", y_peaks)         # y values of peaks (skipping echo)
+# print("X values of peaks:", x_peaks)         # x values of peaks (skipping echo)
+# print("Y values of peaks:", y_peaks)         # y values of peaks (skipping echo)
 
 # Obtain 10% of the peaks' heights
 y_range = y_peaks*0.1
@@ -100,8 +100,8 @@ while a < len(y_range):
 
     a+=1
 
-print("Windows' begginings:", starts)
-print("Windows' begginings:", ends)
+# print("Windows' begginings:", starts)
+# print("Windows' begginings:", ends)
 
 
 # # Find all peaks (echoes included)
@@ -134,7 +134,7 @@ print("Windows' begginings:", ends)
 
 # Find the greatest amplitude
 max_amplitude = max(y_peaks)
-print("Maximal amplitude:", max_amplitude)
+# print("Maximal amplitude:", max_amplitude)
 
 # method needed to round up received values
 def round_half_up(n, decimals=0):
@@ -164,16 +164,33 @@ while w < len(x_peaks):
     fourier = fourier[:math.ceil(len(fourier)/2)]
     power = np.abs(fourier)**2
 
-    # sig = sig[round(len(sig)/2):]
-
     sample_freq = fftfreq(sig.size, d=1/fs)
-    pos_mask = np.where(sample_freq >= 0)
-    freqs = sample_freq[pos_mask]/1000
+    pos_mask = (np.where(sample_freq >= 0)) #and (np.where(sample_freq <= 800 ))
 
-    # pos_mask = np.where(sample_freq >= 0 and sample_freq <= 8000)
+    # s=0
+    # pos_mask = []
+    # while (sample_freq >= 0 and sample_freq <= 8000):
+    #     pos_mask.append(sample_freq)
+    #     s+=1
+
+    # print('pos_mask length:', len(pos_mask))
+    # print('pos_mask', pos_mask)
+    # print('sample_freq length:', len(sample_freq))
+    # print('sample_freq', sample_freq)
+
+    # pos_mask = np.where((sample_freq >= 0) and (sample_freq <= 8000))
+    # pos_mask = np.where(pos_mask <= 8000)
+    
+    freqs = sample_freq[pos_mask]/1000
+    # print('freqs length:', len(freqs))
+    # freqs = sample_freq/1000
+    freqs = freqs[:math.ceil(len(freqs)/5)]
+    print('freqs length:', len(freqs))
+    print(freqs[len(freqs)-1])
+    power = power[:len(freqs)]
     # Find peaks in the graph - frequencies in Hz
-    peak_freq = round_half_up(freqs[power[pos_mask].argmax()], 2)
-    print('Frequency of', w+1, 'mouth click:', peak_freq, 'kHz')
+    peak_freq = round_half_up(freqs[power.argmax()], 2)
+    # print('Frequency of', w+1, 'mouth click:', peak_freq, 'kHz')
 
     
     allpowers.append(power)
