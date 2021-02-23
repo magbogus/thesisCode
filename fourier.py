@@ -5,7 +5,7 @@ import numpy as np
 import wave
 import math
 
-click_rec = wave.open('recordings\\BaOr_2.wav', 'r')
+click_rec = wave.open('recordings\\HaMa_2.wav', 'r')
 
 #Extract Raw Audio from Wav File
 signal = click_rec.readframes(-1)
@@ -46,7 +46,7 @@ def closest(lst, K):
     return lst[min(range(len(lst)), key = lambda i: abs(lst[i]-K))] 
 
 # Find peaks on the graph (besides echoes)
-x_peaks, properties = find_peaks(signalabs, distance = 10000, prominence=(200, None))
+x_peaks, properties = find_peaks(signalabs, distance = 10000, prominence=(700, None))
 properties["prominences"].max() 
 
 y_peaks = signalabs[x_peaks]
@@ -64,7 +64,7 @@ ends = []
 a = 0
 while a < len(y_range):
     # Set range on the left side of a peak where the window beggining will be found
-    start_range = signalabs[x_peaks[a]-500:x_peaks[a]+1]
+    start_range = signalabs[x_peaks[a]-1000:x_peaks[a]+1]
 
     # Find the closest value in array to y_range
     closest_start = closest(start_range, y_range[a])
@@ -80,11 +80,10 @@ while a < len(y_range):
     while k < len(start_range):
         if start_range[k] == closest_start:
             # To achieve the x value for the whole signal (not only for the cut piece):
-            s_value = k + x_peaks[a]-500
+            s_value = k + x_peaks[a]-1000
             # print('Beggining of the window (x): ', s_value)
             starts.append(s_value)
             break
-            # print("s:", starting)
         k+=1
 
     m = 0
@@ -95,7 +94,6 @@ while a < len(y_range):
             # print('Ending of the window (x): ', e_value)
             ends.append(e_value)
             break
-            # print("s:", starting)
         m+=1
 
     a+=1
@@ -165,7 +163,7 @@ while w < len(x_peaks):
     power = np.abs(fourier)**2
 
     sample_freq = fftfreq(sig.size, d=1/fs)
-    pos_mask = (np.where(sample_freq >= 0)) #and (np.where(sample_freq <= 800 ))
+    pos_mask = (np.where(sample_freq >= 0)) 
 
     # s=0
     # pos_mask = []
@@ -212,7 +210,7 @@ plt.plot(signalabs)
 plt.plot(x_peaks, y_peaks, "x")
 plt.plot(starts, signalabs[starts], "x")
 plt.plot(ends, signalabs[ends], "x")
-plt.savefig('output\\signalenergy.png', dpi=300, bbox_inches='tight')
+plt.savefig('output\\hama_signalenergy.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 
@@ -221,10 +219,10 @@ plt.figure(2)
 plt.title('Fast Fourier Transform')
 plt.xlabel('Frequency [kHz]')
 plt.ylabel('Power')
-plt.plot(allfreqs[0], allpowers[0]) #
+plt.plot(allfreqs[0], allpowers[0]) 
 plt.plot(allfreqs[1], allpowers[1])
 plt.plot(allfreqs[2], allpowers[2])
-plt.plot(allfreqs[3], allpowers[3]) #
+plt.plot(allfreqs[3], allpowers[3]) 
 plt.plot(allfreqs[4], allpowers[4])
 plt.plot(allfreqs[5], allpowers[5])
 plt.plot(allfreqs[6], allpowers[6])
@@ -241,20 +239,18 @@ plt.plot(allfreqs[16], allpowers[16])
 plt.plot(allfreqs[17], allpowers[17])
 plt.plot(allfreqs[18], allpowers[18])
 plt.plot(allfreqs[19], allpowers[19])
-plt.plot(allfreqs[20], allpowers[20]) #
-plt.plot(allfreqs[21], allpowers[21]) #
+plt.plot(allfreqs[20], allpowers[20]) 
+plt.plot(allfreqs[21], allpowers[21]) 
 plt.plot(allfreqs[22], allpowers[22])
 plt.plot(allfreqs[23], allpowers[23])
-plt.plot(allfreqs[24], allpowers[24]) #
+plt.plot(allfreqs[24], allpowers[24]) 
 plt.plot(allfreqs[25], allpowers[25])
 plt.plot(allfreqs[26], allpowers[26])
 plt.plot(allfreqs[27], allpowers[27])
 plt.plot(allfreqs[28], allpowers[28])
 plt.plot(allfreqs[29], allpowers[29])
-
-# plt.plot(x_freq, y_freq, "x")
 plt.plot()
-plt.savefig('output\\fourier.png', dpi=300, bbox_inches='tight')
+plt.savefig('output\\hama_fourier.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # Plot frequencies for each mouth click
@@ -264,28 +260,8 @@ plt.xlabel('Number of mouth click')
 plt.ylabel('Frequency [kHz]')
 plt.plot(allpeaks)
 plt.grid()
-plt.savefig('output\\frequencies.png', dpi=300, bbox_inches='tight')
+plt.savefig('output\\hama_frequencies.png', dpi=300, bbox_inches='tight')
 plt.show()
 
-#_________________________________________________________________________________________________
-
-# # Boxplots presenting amplitudes
-# percentage_arr = [percentage_arr[:9], percentage_arr[10:19], percentage_arr[20:]]
-# fig1, ax1 = plt.subplots()
-# # plt.figure(4)
-# ax1.set_title('Amplitudes divided into series')
-# ax1.boxplot(percentage_arr)
-# plt.savefig('output\\amplitude_boxplot.png', dpi=300, bbox_inches='tight')
-# plt.show()
-
-
-# # Boxplots presenting frequencies
-# allpeaks = [allpeaks[:9], allpeaks[10:19], allpeaks[20:]]
-# fig2, ax2 = plt.subplots()
-# # plt.figure(4)
-# ax2.set_title('Frequencies divided into series')
-# ax2.boxplot(allpeaks)
-# plt.savefig('output\\freqs_boxplot.png', dpi=300, bbox_inches='tight')
-# plt.show()
 
 "# thesis" 
