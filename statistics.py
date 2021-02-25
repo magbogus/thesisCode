@@ -166,7 +166,7 @@ plt.savefig('output\\stats\\freqs_meanstd_violinplot.png', dpi=300, bbox_inches=
 plt.show()
 
 
-# Scatter plot freq vs amp per series
+# Scatter plot frequency vs amplitude per series
 fig3, ax3 = plt.subplots(figsize=(8,5))
 # ax3.set_title('Frequency vs amplitude per series')
 ax3.set_xlabel('Frequency [kHz]')
@@ -178,7 +178,7 @@ ax3.legend(series)
 plt.savefig('output\\stats\\scatterplot_series.png', dpi=300, bbox_inches='tight')
 plt.show()
 
-# Scatter plot freq vs amp per people - the loudest motuh clicks
+# Scatter plot frequency vs amplitude per people - the loudest mouth clicks
 plt.figure(figsize=(8,5))
 # plt.title('Frequency vs amplitude per participant for the loudest mouth clicks')
 plt.xlabel('Frequency [kHz]')
@@ -216,7 +216,7 @@ plt.scatter(mama_f[:10], mama_a[:10], c ='#C3A29E', s=60, edgecolors='#393E41')
 plt.savefig('output\\stats\\scatterplot_loud_participants.png', dpi=300, bbox_inches='tight')
 plt.show()
 
-# Scatter plot freq vs amp per people - the highest motuh clicks
+# Scatter plot frequency vs amplitude per people - the highest mouth clicks
 plt.figure(figsize=(8,5))
 # plt.title('Frequency vs amplitude per participant for the highest mouth clicks')
 plt.xlabel('Frequency [kHz]')
@@ -254,7 +254,7 @@ plt.scatter(mama_f[10:20], mama_a[10:20], c ='#C3A29E', s=60, edgecolors='#393E4
 plt.savefig('output\\stats\\scatterplot_high_participants.png', dpi=300, bbox_inches='tight')
 plt.show()
 
-# Scatter plot freq vs amp per people - the lowest mouth clicks
+# Scatter plot frequency vs amplitude per people - the lowest mouth clicks
 plt.figure(figsize=(8,5))
 # plt.title('Frequency vs amplitude per participant for the lowest mouth clicks')
 plt.xlabel('Frequency [kHz]')
@@ -292,7 +292,7 @@ plt.scatter(mama_f[20:], mama_a[20:], c ='#C3A29E', s=60, edgecolors='#393E41')
 plt.savefig('output\\stats\\scatterplot_low_participants.png', dpi=300, bbox_inches='tight')
 plt.show()
 
-# Histogram for the loudest
+# Histogram for the loudest mouth clicks
 plt.figure(figsize=(8,5))
 # plt.title('Histogram for the loudest mouth clicks')
 plt.xlabel('Frequency [kHz]')
@@ -311,7 +311,7 @@ plt.savefig('output\\stats\\hist_loudest.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 
-# Histogram for the highest
+# Histogram for the highest mouth clicks
 plt.figure(figsize=(8,5))
 # plt.title('Histogram for the highest mouth clicks')
 plt.xlabel('Frequency [kHz]')
@@ -322,7 +322,7 @@ plt.legend(series[1:])
 plt.savefig('output\\stats\\hist_highest.png', dpi=300, bbox_inches='tight')
 plt.show()
 
-# Histogram for the lowest
+# Histogram for the lowest mouth clicks
 plt.figure(figsize=(8,5))
 # plt.title('Histogram for the lowest mouth clicks')
 plt.xlabel('Frequency [kHz]')

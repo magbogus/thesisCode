@@ -143,7 +143,7 @@ print('Frequencies [kHz] obtained in the FFT:', allpeaks)
 
 
 
-# Plot the graph with signal energy and peaks
+# Plot signal energy with marked peaks, as well as begginings and endings of windows
 plt.figure(1)
 plt.title('Signal Energy')
 plt.xlabel('Number of sample')
@@ -156,7 +156,7 @@ plt.savefig('output\\signalenergy.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 
-# Plot the graph with FFT
+# Plot the graph with FFT for each mouth click
 plt.figure(2)
 plt.title('Fast Fourier Transform')
 plt.xlabel('Frequency [kHz]')
