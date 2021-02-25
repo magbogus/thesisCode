@@ -5,29 +5,27 @@ import numpy as np
 import wave
 import math
 
+# Function needed to find value from the graph which is the closest to 10% of the peak's height,
+# source: https://www.geeksforgeeks.org/python-find-closest-number-to-k-in-given-list/
+def closest(lst, K):
+    return lst[min(range(len(lst)), key = lambda i: abs(lst[i]-K))] 
+
+# Method needed to round up received values,
+# source: https://realpython.com/python-rounding/
+def round_half_up(n, decimals=0):
+    multiplier = 10 ** decimals
+    return math.floor(n*multiplier + 0.5) / multiplier
+
+
 click_rec = wave.open('recordings\\HaMa_2.wav', 'r')
 
-#Extract Raw Audio from Wav File
+#Extract Raw Audio from Wav File, source: 
 signal = click_rec.readframes(-1)
 signal = np.frombuffer(signal, dtype='int16')
 fs = click_rec.getframerate()
 
-# print (fs)
-
-# num = len(signal)
-# Time=np.linspace(0, num/fs, num)
-# print(num, Time)
-
-
-# plt.figure(1)
-# plt.title('Signal Wave of the tone')
-# plt.xlabel('Number of sample')
-# plt.ylabel('Amplitude')
-# plt.plot(abs(signal))
-# plt.show()
-
 # Calculate signal energy
-signalabs=abs(signal) #[:530000]) #120000])
+signalabs=abs(signal)
 
 i = 0
 sum_x = 0
@@ -42,21 +40,17 @@ while i < len(signalabs)-300:
     signalabs[i] = sum_x/300
     i=i+1 
 
-def closest(lst, K):
-    return lst[min(range(len(lst)), key = lambda i: abs(lst[i]-K))] 
 
-# Find peaks on the graph (besides echoes)
+# Find peaks on the graph on x axis,
+# source: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html
 x_peaks, properties = find_peaks(signalabs, distance = 10000, prominence=(700, None))
 properties["prominences"].max() 
 
+# Determine height of the found peak
 y_peaks = signalabs[x_peaks]
-
-# print("X values of peaks:", x_peaks)         # x values of peaks (skipping echo)
-# print("Y values of peaks:", y_peaks)         # y values of peaks (skipping echo)
 
 # Obtain 10% of the peaks' heights
 y_range = y_peaks*0.1
-# print("10% of peaks' height:", y_range)
 
 
 starts = []
@@ -81,7 +75,6 @@ while a < len(y_range):
         if start_range[k] == closest_start:
             # To achieve the x value for the whole signal (not only for the cut piece):
             s_value = k + x_peaks[a]-1000
-            # print('Beggining of the window (x): ', s_value)
             starts.append(s_value)
             break
         k+=1
@@ -91,53 +84,15 @@ while a < len(y_range):
         if end_range[m] == closest_end:
             # To achieve the x value for the whole signal (not only for the cut piece):
             e_value = m + x_peaks[a]
-            # print('Ending of the window (x): ', e_value)
             ends.append(e_value)
             break
         m+=1
 
     a+=1
 
-# print("Windows' begginings:", starts)
-# print("Windows' begginings:", ends)
-
-
-# # Find all peaks (echoes included)
-# x_peak_echo, properties = find_peaks(signalabs, distance = 50, prominence=(800, None))
-# properties["prominences"].max()
-
-# y_peak_echo = signalabs[x_peak_echo]
-
-
-# # Look for windows' ends - finding minimal value between sound and its echo
-# ends = []
-# d=0
-# while d < len(x_peak_echo): 
-#     # Define piece of signal between each sound and its echo
-#     piece = signalabs[x_peak_echo[d]:x_peak_echo[d+1]]
-#     # Find minimal value (y)
-#     y_dip = min(piece)
-#     l=0
-#     # Find corresponding x value and add it to an array
-#     while l < len(piece):
-#         if piece[l] == y_dip:
-#             x_d = l + x_peak_echo[d]
-#             ends.append(x_d)
-#             break
-#         l+=1
-#     d = d + 2
-
-# print("Windows' ends:", ends)
-
 
 # Find the greatest amplitude
 max_amplitude = max(y_peaks)
-# print("Maximal amplitude:", max_amplitude)
-
-# method needed to round up received values
-def round_half_up(n, decimals=0):
-    multiplier = 10 ** decimals
-    return math.floor(n*multiplier + 0.5) / multiplier
 
 # Show other peaks as percentage value regarding max_amplitude
 t = 0
@@ -150,47 +105,34 @@ while t < len(y_peaks):
 print("Percentage values of amplitudes:", percentage_arr)
 
 
-
+# Calculate power and Fast Fourier Transform
+# based on source: http://scipy-lectures.org/intro/scipy/auto_examples/plot_fftpack.html
 w=0
-
 allfreqs = []
 allpowers = []
 allpeaks = []
+
 while w < len(x_peaks):
     sig = signal[starts[w]:ends[w]]
     fourier = fft(sig)
+    
+    # Limit FFT to show only half values
     fourier = fourier[:math.ceil(len(fourier)/2)]
     power = np.abs(fourier)**2
-
+    
     sample_freq = fftfreq(sig.size, d=1/fs)
+    
+    # Limit frequency only to positive values presented in kHz
     pos_mask = (np.where(sample_freq >= 0)) 
-
-    # s=0
-    # pos_mask = []
-    # while (sample_freq >= 0 and sample_freq <= 8000):
-    #     pos_mask.append(sample_freq)
-    #     s+=1
-
-    # print('pos_mask length:', len(pos_mask))
-    # print('pos_mask', pos_mask)
-    # print('sample_freq length:', len(sample_freq))
-    # print('sample_freq', sample_freq)
-
-    # pos_mask = np.where((sample_freq >= 0) and (sample_freq <= 8000))
-    # pos_mask = np.where(pos_mask <= 8000)
-    
     freqs = sample_freq[pos_mask]/1000
-    # print('freqs length:', len(freqs))
-    # freqs = sample_freq/1000
+  
+    # Limit frequency up to about 4 kHz
     freqs = freqs[:math.ceil(len(freqs)/5)]
-    print('freqs length:', len(freqs))
-    print(freqs[len(freqs)-1])
     power = power[:len(freqs)]
-    # Find peaks in the graph - frequencies in Hz
-    peak_freq = round_half_up(freqs[power.argmax()], 2)
-    # print('Frequency of', w+1, 'mouth click:', peak_freq, 'kHz')
-
     
+    # Find peaks in the graph - frequencies in kHz
+    peak_freq = round_half_up(freqs[power.argmax()], 2)
+
     allpowers.append(power)
     allfreqs.append(freqs)
     allpeaks.append(peak_freq)

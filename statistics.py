@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import stats
 
-# amplitudes collected from fourier.py
+# amplitudes in % collected from fourier.py
 agpo_a = [29.3, 85.57, 96.93, 52.2, 54.36, 61.72, 29.12, 38.23, 22.21, 32.97, 66.76, 69.34, 43.27, 83.39, 65.04, 100.0, 42.56, 76.97, 85.23, 46.65, 8.47, 26.64, 19.15, 45.38, 15.67, 13.37, 35.74, 27.08, 43.92, 43.41]
 ango_a = [70.17, 68.14, 64.87, 61.53, 66.03, 67.4, 44.77, 54.51, 65.66, 33.47, 60.52, 23.06, 32.84, 100.0, 31.94, 49.39, 67.1, 42.44, 39.92, 45.39, 24.08, 29.69, 10.71, 37.73, 76.76, 62.67, 57.8, 69.86, 52.69, 48.98]
 anku_a = [63.15, 59.54, 84.0, 54.75, 100.0, 91.34, 87.22, 56.35, 58.45, 66.68, 43.71, 12.65, 84.29, 53.19, 43.27, 13.35, 89.15, 24.81, 72.29, 66.61, 20.68, 28.86, 17.28, 99.86, 10.91, 15.8, 21.02, 36.52, 7.25, 91.35]
@@ -84,20 +84,25 @@ def count_mean_std(init_array):
         mean = np.mean(init_array[j])
         std = np.std(init_array[j])
         std_plus = mean + std
-        std_minus = mean - std
         mean_std.append(mean)
         mean_std.append(std_plus)
-        mean_std.append(std_minus)
+        if (std > mean):
+            pass
+        else:
+            std_minus = mean - std
+            mean_std.append(std_minus)
         j+=1
     return (mean_std)
 
-# Function needed to fix labels in violin plots
+# Function needed to fix labels in violin plots,
+# source: https://matplotlib.org/3.3.4/gallery/statistics/customized_violin.html#sphx-glr-gallery-statistics-customized-violin-py
 def set_axis_style(ax, labels):
     ax.get_xaxis().set_tick_params(direction='out')
     ax.xaxis.set_ticks_position('bottom')
     ax.set_xticks(np.arange(1, len(labels) + 1))
     ax.set_xticklabels(labels)
     ax.set_xlim(0.25, len(labels) + 0.75)
+
 
 # Function needed to calculate mean and std to create a table
 def count_mean_std_table(init_array):
@@ -115,6 +120,16 @@ def count_mean_std_table(init_array):
     return (mean_std)
 
 
+# Function needed to convert amplitudes from percent to decibels
+def percent_to_db(init_array):
+    q = 0
+    b = []
+    while (q < len(init_array)):
+        counter = round(20*(np.log10(init_array[q]/100)), 2)
+        b.append(counter)
+        q = q + 1
+    return b
+
 
 # Calculate mean and standard deviation for all amplitude and frequency series
 mean_std_aloud = count_mean_std(amp_loudest_array)
@@ -126,20 +141,20 @@ mean_std_fhigh = count_mean_std(freq_highest_array)
 mean_std_flow = count_mean_std(freq_lowest_array)
 
 
-# # # Boxplots presenting amplitudes
+# # # Violin plots presenting amplitudes
 series = ['The loudest\nmouth clicks', 'The highest\nmouth clicks', 'The lowest\nmouth clicks']
-percentage_arr = [mean_std_aloud, mean_std_ahigh, mean_std_alow]
+db_arr = [percent_to_db(mean_std_aloud), percent_to_db(mean_std_ahigh), percent_to_db(mean_std_alow)]
 fig1, ax1 = plt.subplots(figsize=(8,5))
 # ax1.set_title('Amplitudes per series')
-ax1.set_ylabel('Amplitude [%]')
+ax1.set_ylabel('Amplitude [dB]')
 set_axis_style(ax1, series)
 plt.grid(axis='y', alpha=0.7)
-ax1.violinplot(percentage_arr, showmeans=True)
-plt.savefig('output\\stats\\amplitudes_meanstd_boxplot.png', dpi=300, bbox_inches='tight')
+ax1.violinplot(db_arr, showmeans=True)
+plt.savefig('output\\stats\\amplitudes_meanstd_db_violinplot.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 
-# Boxplots presenting frequencies
+# Violin plots presenting frequencies
 allpeaks = [mean_std_floud, mean_std_fhigh, mean_std_flow]
 fig2, ax2 = plt.subplots(figsize=(8,5))
 # ax2.set_title('Frequencies per series')
@@ -147,7 +162,7 @@ ax2.set_ylabel('Frequency [kHz]')
 set_axis_style(ax2, series)
 plt.grid(axis='y', alpha=0.7)
 ax2.violinplot(allpeaks, showmeans=True)
-plt.savefig('output\\stats\\freqs_meanstd_boxplot.png', dpi=300, bbox_inches='tight')
+plt.savefig('output\\stats\\freqs_meanstd_violinplot.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 
@@ -324,41 +339,41 @@ while i <= 2.6:
     bins.append(round(i, 1))
     i = i + 0.1
 
-# # Histogram for all series
-# plt.figure(figsize=(8,5))
-# # plt.title('Histogram for the all series of mouth clicks')
-# plt.xlabel('Frequency [kHz]')
-# plt.ylabel('Density')
-# plt.grid(axis='y', alpha=0.7)
+# Histogram for all series
+plt.figure(figsize=(8,5))
+# plt.title('Histogram for the all series of mouth clicks')
+plt.xlabel('Frequency [kHz]')
+plt.ylabel('Density')
+plt.grid(axis='y', alpha=0.7)
 
-# plt.hist([np.concatenate(freq_loudest_array),np.concatenate(freq_highest_array),np.concatenate(freq_lowest_array)], 
-#         color=['#252627', '#FF6B35', '#2274A5'], histtype='bar',  rwidth=0.85, bins=bins, density=True, alpha=0.7)
-# kde1 = stats.gaussian_kde([np.concatenate(freq_loudest_array)])
-# kde2 = stats.gaussian_kde([np.concatenate(freq_highest_array)])
-# kde3 = stats.gaussian_kde([np.concatenate(freq_lowest_array)])
-# x_kde = np.linspace(0, 2.5, 1000)
-# plt.plot(x_kde, kde1(x_kde), color='#252627')
-# plt.plot(x_kde, kde2(x_kde), color='#FF6B35')
-# plt.plot(x_kde, kde3(x_kde), color='#2274A5')
-# plt.plot(np.mean(freq_loudest_array), kde1(np.mean(freq_loudest_array)), 'd', color='#252627')
-# plt.plot(np.mean(freq_highest_array), kde2(np.mean(freq_highest_array)), 'd', color='#FF6B35')
-# plt.plot(np.mean(freq_lowest_array), kde3(np.mean(freq_lowest_array)), 'd', color='#2274A5')
-# plt.legend(series)
-# plt.savefig('output\\stats\\hist_all.png', dpi=300, bbox_inches='tight')
-# plt.show()
+plt.hist([np.concatenate(freq_loudest_array),np.concatenate(freq_highest_array),np.concatenate(freq_lowest_array)], 
+        color=['#252627', '#FF6B35', '#2274A5'], histtype='bar',  rwidth=0.85, bins=bins, density=True, alpha=0.7)
+kde1 = stats.gaussian_kde([np.concatenate(freq_loudest_array)])
+kde2 = stats.gaussian_kde([np.concatenate(freq_highest_array)])
+kde3 = stats.gaussian_kde([np.concatenate(freq_lowest_array)])
+x_kde = np.linspace(0, 2.5, 1000)
+plt.plot(x_kde, kde1(x_kde), color='#252627')
+plt.plot(x_kde, kde2(x_kde), color='#FF6B35')
+plt.plot(x_kde, kde3(x_kde), color='#2274A5')
+plt.plot(np.mean(freq_loudest_array), kde1(np.mean(freq_loudest_array)), 'd', color='#252627')
+plt.plot(np.mean(freq_highest_array), kde2(np.mean(freq_highest_array)), 'd', color='#FF6B35')
+plt.plot(np.mean(freq_lowest_array), kde3(np.mean(freq_lowest_array)), 'd', color='#2274A5')
+plt.legend(series)
+plt.savefig('output\\stats\\hist_all.png', dpi=300, bbox_inches='tight')
+plt.show()
 
 
-# # Calculate means of frequency and amplitude (general mean and mean per participant) for each series
-# freq_loud_table = count_mean_std_table(freq_loudest_array)
-# freq_high_table = count_mean_std_table(freq_highest_array)
-# freq_low_table = count_mean_std_table(freq_lowest_array)
+# Calculate means of frequency and amplitude (general mean and mean per participant) for each series
+freq_loud_table = count_mean_std_table(freq_loudest_array)
+freq_high_table = count_mean_std_table(freq_highest_array)
+freq_low_table = count_mean_std_table(freq_lowest_array)
 
-# amp_loud_table = count_mean_std_table(amp_loudest_array)
-# amp_high_table = count_mean_std_table(amp_highest_array)
-# amp_low_table = count_mean_std_table(amp_lowest_array)
+amp_loud_table = count_mean_std_table(amp_loudest_array)
+amp_high_table = count_mean_std_table(amp_highest_array)
+amp_low_table = count_mean_std_table(amp_lowest_array)
 
-# print('THE LOUDEST MOUTH CLICKS:\nFrequency:', freq_loud_table, '\nAmplitude:', amp_loud_table)
-# print('THE HIGHEST MOUTH CLICKS:\nFrequency:', freq_high_table, '\nAmplitude:', amp_high_table)
-# print('THE LOWEST MOUTH CLICKS:\nFrequency:', freq_loud_table, '\nAmplitude:', amp_low_table)
+print('THE LOUDEST MOUTH CLICKS:\nFrequency [kHz]:', freq_loud_table, '\nAmplitude [%]:', amp_loud_table, '\nAmplitude [dB]:', percent_to_db(mean_std_aloud))
+print('THE HIGHEST MOUTH CLICKS:\nFrequency [kHz]:', freq_high_table, '\nAmplitude [%]:', amp_high_table, '\nAmplitude [dB]:', percent_to_db(mean_std_ahigh))
+print('THE LOWEST MOUTH CLICKS:\nFrequency [kHz]:', freq_loud_table, '\nAmplitude [%]:', amp_low_table, '\nAmplitude [dB]:', percent_to_db(mean_std_alow))
 
 
