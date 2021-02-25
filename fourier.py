@@ -152,7 +152,7 @@ plt.plot(signalabs)
 plt.plot(x_peaks, y_peaks, "x")
 plt.plot(starts, signalabs[starts], "x")
 plt.plot(ends, signalabs[ends], "x")
-plt.savefig('output\\hama_signalenergy.png', dpi=300, bbox_inches='tight')
+plt.savefig('output\\signalenergy.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 
@@ -192,7 +192,7 @@ plt.plot(allfreqs[27], allpowers[27])
 plt.plot(allfreqs[28], allpowers[28])
 plt.plot(allfreqs[29], allpowers[29])
 plt.plot()
-plt.savefig('output\\hama_fourier.png', dpi=300, bbox_inches='tight')
+plt.savefig('output\\fourier.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # Plot frequencies for each mouth click
@@ -202,7 +202,7 @@ plt.xlabel('Number of mouth click')
 plt.ylabel('Frequency [kHz]')
 plt.plot(allpeaks)
 plt.grid()
-plt.savefig('output\\hama_frequencies.png', dpi=300, bbox_inches='tight')
+plt.savefig('output\\frequencies.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 
